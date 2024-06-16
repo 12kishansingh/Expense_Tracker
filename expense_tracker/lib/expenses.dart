@@ -2,6 +2,7 @@ import 'package:expense_tracker/expenses_list.dart';
 import 'package:expense_tracker/new_expense.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/expense.dart';
+import 'package:expense_tracker/char.dart';
 
 class Expenses extends StatefulWidget {
   const Expenses({super.key});
@@ -23,13 +24,54 @@ class _ExpensesState extends State<Expenses> {
   ];
   void _openAddExpenseOverlay() {
     showModalBottomSheet(
+      // to make sure keyboard that opens up does not overlap
+      isScrollControlled: true,
       context: context,
-      builder: (ctx) => const NewExpense(),
+      builder: (ctx) => NewExpense(onAddExpense: _addExpense),
+    );
+  }
+
+  void _addExpense(Expense expense) {
+    setState(() {
+      _registeredExpenses.add(expense);
+    });
+  }
+
+  void _removedExpense(Expense expense) {
+    final expenseIndex=_registeredExpenses.indexOf(expense);
+    setState(() {
+      _registeredExpenses.remove(expense);
+    });
+    // remove next info message, clear all existing info message
+    ScaffoldMessenger.of(context).clearSnackBars();
+    // show  info message (snakbar) after removing
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 3),
+        content: const Text('Expense Deleted!'),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: (){
+            setState(() {
+              _registeredExpenses.insert(expenseIndex,expense);
+            });
+          },
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    Widget mainContent = const Center(
+      child: Text('No expense found!'),
+    );
+    if (_registeredExpenses.isNotEmpty) {
+      mainContent = ExpensesList(
+        expenses: _registeredExpenses,
+        onRemoveExpense: _removedExpense,
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Expense Tracker'),
@@ -42,10 +84,11 @@ class _ExpensesState extends State<Expenses> {
       ),
       body: Column(
         children: [
-          const Text('the chart'),
+          //const Text('the chart'),
+          Chart(expenses:_registeredExpenses),
           // Text('expense list'),
           Expanded(
-            child: ExpensesList(expenses: _registeredExpenses),
+            child: mainContent,
           ),
         ],
       ),

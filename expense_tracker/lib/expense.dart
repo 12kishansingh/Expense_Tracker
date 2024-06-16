@@ -34,3 +34,29 @@ class Expense {
     return formatter.format(date);
   }
 }
+// hold summed up data for each category
+class Expensebucket{
+  Expensebucket({
+    required this.category,
+  required this.expenses,
+});
+
+// defining alternative constructor, filter out diff category
+Expensebucket.forCategory(List<Expense>allExpenses,this.category)
+:expenses=allExpenses
+.where((expense)=>expense.category==category)
+.toList();
+
+  final Category category;
+  final List<Expense> expenses;
+
+  double get totalExpense{
+    double sum=0;
+    for(final expense in expenses){
+      sum=sum+expense.amount;
+    }
+
+    return sum;
+  }
+
+}
