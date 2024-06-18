@@ -24,6 +24,7 @@ class _ExpensesState extends State<Expenses> {
   ];
   void _openAddExpenseOverlay() {
     showModalBottomSheet(
+      useSafeArea: true,// stay away from device features like camrera that will affect our ui
       // to make sure keyboard that opens up does not overlap
       isScrollControlled: true,
       context: context,
@@ -38,7 +39,7 @@ class _ExpensesState extends State<Expenses> {
   }
 
   void _removedExpense(Expense expense) {
-    final expenseIndex=_registeredExpenses.indexOf(expense);
+    final expenseIndex = _registeredExpenses.indexOf(expense);
     setState(() {
       _registeredExpenses.remove(expense);
     });
@@ -51,9 +52,9 @@ class _ExpensesState extends State<Expenses> {
         content: const Text('Expense Deleted!'),
         action: SnackBarAction(
           label: 'Undo',
-          onPressed: (){
+          onPressed: () {
             setState(() {
-              _registeredExpenses.insert(expenseIndex,expense);
+              _registeredExpenses.insert(expenseIndex, expense);
             });
           },
         ),
@@ -63,6 +64,8 @@ class _ExpensesState extends State<Expenses> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     Widget mainContent = const Center(
       child: Text('No expense found!'),
     );
@@ -82,16 +85,28 @@ class _ExpensesState extends State<Expenses> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          //const Text('the chart'),
-          Chart(expenses:_registeredExpenses),
-          // Text('expense list'),
-          Expanded(
-            child: mainContent,
-          ),
-        ],
-      ),
+      body: width < 600
+          ? Column(
+              children: [
+                //const Text('the chart'),
+                Chart(expenses: _registeredExpenses),
+                // Text('expense list'),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(
+                  child: Chart(expenses: _registeredExpenses),
+                ),
+                // Text('expense list'),
+                Expanded(
+                  child: mainContent,
+                ),
+              ],
+            ),
     );
   }
 }

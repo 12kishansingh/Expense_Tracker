@@ -38,7 +38,7 @@ class Chart extends StatelessWidget {
         vertical: 16,
         horizontal: 8,
       ),
-      width: double.infinity,
+      width: double.infinity,// takes as much width as much it gets
       height: 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
